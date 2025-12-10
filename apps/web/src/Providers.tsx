@@ -12,6 +12,26 @@ import { Provider } from 'react-redux'
 import { WagmiProvider } from 'wagmi'
 import { createWagmiConfig } from 'utils/wagmi'
 import { WalletProvider } from 'wallet/WalletProvider'
+import { InspectorProvider } from "fixdog";
+
+const isDev = process.env.NODE_ENV === "development";
+
+export function FixDogInspectorProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  console.log("isDev", isDev);
+  return isDev ? (
+    <InspectorProvider options={{
+      projectId: "1234567890",
+      modelId: "1234567890",
+    }}>{children}</InspectorProvider>
+  ) : (
+    children
+  );
+}
+
 // Create a client
 const queryClient = new QueryClient()
 
@@ -24,6 +44,7 @@ const StyledUIKitProvider: React.FC<React.PropsWithChildren> = ({ children, ...p
   )
 }
 
+
 const Providers: React.FC<
   React.PropsWithChildren<{
     store: Store
@@ -32,27 +53,29 @@ const Providers: React.FC<
   }>
 > = ({ children, store, dehydratedState }) => {
   return (
-    <FirebaseAuthProvider>
-      <Provider store={store}>
-        <LanguageProvider>
-          <PrivyProvider>
-            <QueryClientProvider client={queryClient}>
-              <WalletProvider>
-                <HydrationBoundary state={dehydratedState}>
-                  <NextThemeProvider>
-                    <StyledUIKitProvider>
-                      <HistoryManagerProvider>
-                        <ModalProvider portalProvider={DialogProvider}>{children}</ModalProvider>
-                      </HistoryManagerProvider>
-                    </StyledUIKitProvider>
-                  </NextThemeProvider>
-                </HydrationBoundary>
-              </WalletProvider>
-            </QueryClientProvider>
-          </PrivyProvider>
-        </LanguageProvider>
-      </Provider>
-    </FirebaseAuthProvider>
+    <FixDogInspectorProvider>
+      <FirebaseAuthProvider>
+        <Provider store={store}>
+          <LanguageProvider>
+            <PrivyProvider>
+              <QueryClientProvider client={queryClient}>
+                <WalletProvider>
+                  <HydrationBoundary state={dehydratedState}>
+                    <NextThemeProvider>
+                      <StyledUIKitProvider>
+                        <HistoryManagerProvider>
+                          <ModalProvider portalProvider={DialogProvider}>{children}</ModalProvider>
+                        </HistoryManagerProvider>
+                      </StyledUIKitProvider>
+                    </NextThemeProvider>
+                  </HydrationBoundary>
+                </WalletProvider>
+              </QueryClientProvider>
+            </PrivyProvider>
+          </LanguageProvider>
+        </Provider>
+      </FirebaseAuthProvider>
+    </FixDogInspectorProvider>
   )
 }
 
